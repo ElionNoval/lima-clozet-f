@@ -1567,6 +1567,7 @@ let curProduct = null;
 let curQty = 1;
 let proofData = null;
 let proofName = '';
+let curSelectedSize = '';
 let activeFilter = 'All';
 let mobOpen = false;
 
@@ -1800,7 +1801,7 @@ function renderProducts() {
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
           ${p.hasSizes && p.sizes?.length ? `
-          <button class="p-act-btn" onclick="openSizeChart(event,${p.id})" title="Size guide" aria-label="Size guide">
+          <button class="p-act-btn" onclick="openSizeChart(event,'${p.id}')" title="Size guide" aria-label="Size guide">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"/></svg>
           </button>` : ''}
           <button class="p-act-btn" onclick="quickOrder('${p.id}')" title="Order now" aria-label="Order ${p.name}">
@@ -1932,11 +1933,12 @@ function openSizeChart(e, id) {
   e.stopPropagation();
   const p = products.find(x => x.id === id);
   if (!p || !p.sizes?.length) return;
+  curProduct = p;
   // show size table in a toast-style popup
   const unit = p.sizeUnit || 'inches';
   const hasLength = p.sizes.some(s => s.length);
   const rows = p.sizes.map(s => `
-    <tr>
+    <tr onclick="selectSizeFromChart('${s.label}')" style="cursor:pointer" title="Click to select ${s.label}">
       <td style="color:var(--gold);font-family:var(--font-d);font-size:1rem;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05)">${s.label}</td>
       <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.bust || '—'}</td>
       <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.waist || '—'}</td>
@@ -1967,13 +1969,27 @@ function closeSizeModal() {
 function populateSizeDropdown(p) {
   const wrap = document.getElementById('sizeSelectWrap');
   const sel  = document.getElementById('fSize');
+  const preview = document.getElementById('sizeChartPreview');
   if (p.hasSizes && p.sizes?.length) {
     sel.innerHTML = '<option value="">-- Pick your size --</option>' +
-      p.sizes.map(s => `<option value="${s.label}">${s.label}</option>`).join('');
+      p.sizes.map(s => {
+        const details = [s.bust && `Bust ${s.bust}`, s.waist && `Waist ${s.waist}`, s.hip && `Hip ${s.hip}`, s.length && `Length ${s.length}`]
+          .filter(Boolean).join(' / ');
+        return `<option value="${s.label}">${s.label}${details ? ' — ' + details : ''}</option>`;
+      }).join('');
     wrap.style.display = 'block';
+    if (preview) {
+      preview.style.display = 'block';
+      preview.textContent = 'Available sizes: ' + p.sizes.map(s => {
+        const details = [s.bust && `Bust ${s.bust}`, s.waist && `Waist ${s.waist}`, s.hip && `Hip ${s.hip}`, s.length && `Length ${s.length}`]
+          .filter(Boolean).join(' / ');
+        return `${s.label}${details ? ' (' + details + ')' : ''}`;
+      }).join(' · ');
+    }
   } else {
     wrap.style.display = 'none';
     sel.value = '';
+    if (preview) preview.style.display = 'none';
   }
 }
 
@@ -1983,7 +1999,8 @@ function populateSizeDropdown(p) {
 function quickOrder(id) {
   const p = products.find(x => String(x.id) === String(id));
   if (!p) return;
-  curProduct = p; curQty = 1; openOM();
+  curProduct = p; curQty = 1; curSelectedSize = '';
+  openOM();
 }
 function openOM() {
   if (!curProduct) return;
@@ -1996,6 +2013,10 @@ function openOM() {
   });
   clearUpload();
   populateSizeDropdown(curProduct);
+  if (curSelectedSize) {
+    const el = document.getElementById('fSize');
+    if (el) el.value = curSelectedSize;
+  }
   document.getElementById('oSuccess').style.display = 'none';
   document.getElementById('oSummary').style.display = 'flex';
   document.getElementById('stepsDots').style.display = 'flex';
@@ -2146,6 +2167,7 @@ async function submitOrder() {
         headers:{ 'Content-Type':'application/json' },
         body: JSON.stringify({
           product: order.product, quantity: order.quantity, total: order.total,
+          selectedSize: order.selectedSize,
           customer: order.customer,
           payment: { proofData: order.payment.proofData, ref: order.payment.ref },
         }),
