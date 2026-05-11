@@ -1745,6 +1745,9 @@ async function loadProducts() {
       price: p.price || 0, description: p.description || '',
       image: p.image || '', stock: p.stock ?? null,
       featured: p.featured ?? false, slug: p.slug || '',
+      hasSizes: p.hasSizes ?? false,
+      sizeUnit: p.sizeUnit || 'inches',
+      sizes: p.sizes || [],
     }));
     if (products.length === 0) throw new Error('empty');
   } catch {
