@@ -1510,9 +1510,31 @@ textarea.input-liq{resize:none}
             <button onclick="event.stopPropagation();clearUpload()" style="font-size:0.72rem;color:var(--w40);background:none;border:none;cursor:pointer;margin-top:8px;font-family:var(--font-ui)">✕ Remove</button>
           </div>
         </div>
+        <!-- Delivery Info -->
+        <div style="margin-bottom:18px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1)">
+          <div style="font-size:0.68rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);margin-bottom:10px">Shipping Method</div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px">
+            <span style="font-size:clamp(0.78rem,2vw,0.85rem);color:var(--w80)">Delivery fee will be paid to the rider or driver</span>
+            <span style="font-size:clamp(0.78rem,2vw,0.85rem);color:#4ade80;font-weight:500;white-space:nowrap">FREE</span>
+          </div>
+          <p style="font-size:clamp(0.7rem,1.8vw,0.78rem);color:var(--w40);line-height:1.65">
+            Orders are sent out on Wednesdays · Delivery within Lagos takes 24–72 hours · Delivery outside Lagos takes 2–4 working days
+          </p>
+        </div>
         <div style="margin-top:15px">
           <label class="input-label" for="fRef">Transaction Reference (optional)</label>
           <input class="input-liq" id="fRef" type="text" placeholder="e.g. 123456789">
+        </div>
+        <!-- Terms -->
+        <div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(212,175,106,0.05);border:1px solid rgba(212,175,106,0.15)">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+            <input type="checkbox" id="termsCheck" style="margin-top:3px;accent-color:var(--gold);width:15px;height:15px;flex-shrink:0">
+            <span style="font-size:clamp(0.68rem,1.8vw,0.75rem);color:var(--w60);line-height:1.6">
+              I agree to the <strong style="color:var(--gold)">Terms & Conditions</strong> — 
+              No refunds will be issued after 3 days of confirmed delivery. 
+              All sales are final once the order has been marked as delivered.
+            </span>
+          </label>
         </div>
         <div style="display:flex;gap:10px;margin-top:20px">
           <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="goStep(2)">← Back</button>
@@ -2139,6 +2161,8 @@ async function submitOrder() {
   const size = document.getElementById('fSize').value;
   const needsSize = curProduct.hasSizes && curProduct.sizes?.length;
   if (needsSize && !size) { toast('Please select your size.', 'warning'); return; }
+  const terms = document.getElementById('termsCheck');
+  if (!terms.checked) { toast('Please agree to the terms and conditions.', 'warning'); return; }
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:8px"><span class="spinner"></span>Submitting…</span>';
@@ -2195,6 +2219,8 @@ function resetOrder() {
   curProduct = null; curQty = 1; proofData = null; proofName = '';
   document.getElementById('stepsDots').style.display = 'flex';
   document.getElementById('oSummary').style.display = 'flex';
+  const terms = document.getElementById('termsCheck');
+  if (terms) terms.checked = false;
 }
 
 /* ══════════════════════════════════════
