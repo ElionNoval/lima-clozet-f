@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>LIMA CLOZET — Premium Fashion</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cormorant-garamond@5.0.0/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dm-sans@5.0.0/index.css">
 <style>
 /* ═══════════════════════════════════════
    TOKENS
@@ -62,7 +62,7 @@ body{
   cursor:none;
 }
 img{max-width:100%;display:block}
-button,input,textarea{font-family:inherit}
+button,input,textarea,select{font-family:inherit}
 a{text-decoration:none;color:inherit}
 *::-webkit-scrollbar{width:3px}
 *::-webkit-scrollbar-track{background:transparent}
@@ -93,6 +93,110 @@ a{text-decoration:none;color:inherit}
 body.cursor-hover #cursor{width:20px;height:20px;background:rgba(212,175,106,0.3)}
 body.cursor-hover #cursor-ring{width:52px;height:52px;border-color:var(--gold)}
 @media(pointer:coarse){#cursor,#cursor-ring{display:none}body{cursor:auto}}
+
+/* ═══════════════════════════════════════
+   CART DRAWER LAYOUT
+═══════════════════════════════════════ */
+#cartOverlay{
+  position:fixed;inset:0;z-index:899;
+  background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity 0.4s,visibility 0.4s;
+}
+#cartOverlay.show{opacity:1;visibility:visible;pointer-events:auto}
+
+#cartDrawer{
+  position:fixed;top:0;right:0;bottom:0;
+  width:min(420px,100vw);
+  z-index:900;
+  background:rgba(9,9,20,0.97);
+  backdrop-filter:blur(48px);
+  -webkit-backdrop-filter:blur(48px);
+  border-left:1px solid rgba(255,255,255,0.1);
+  box-shadow:-24px 0 80px rgba(0,0,0,0.6);
+  transform:translateX(100%);
+  transition:transform 0.45s var(--ease);
+  display:flex;flex-direction:column;
+  pointer-events:none;
+}
+#cartDrawer.open{transform:translateX(0);pointer-events:auto}
+#cartDrawer::-webkit-scrollbar{width:3px}
+
+.cart-btn{
+  background:none;border:none;cursor:pointer;
+  color:var(--w60);padding:6px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;transition:color 0.2s;
+}
+.cart-btn:hover{color:var(--white)}
+.cart-btn svg{width:20px;height:20px}
+.cart-badge{
+  position:absolute;top:-2px;right:-4px;
+  min-width:16px;height:16px;
+  background:var(--gold);color:#1a1200;
+  font-size:0.6rem;font-weight:700;
+  border-radius:var(--radius-pill);
+  display:none;align-items:center;justify-content:center;
+  padding:0 4px;line-height:1;
+}
+.cart-badge.show{display:flex}
+
+.cart-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:clamp(12px,3vw,16px) 0;
+  border-bottom:1px solid var(--w06);
+}
+.cart-item:last-child{border-bottom:none}
+.cart-item-img{
+  width:clamp(56px,12vw,72px);height:clamp(56px,12vw,72px);
+  border-radius:10px;object-fit:cover;flex-shrink:0;
+  background:rgba(255,255,255,0.05);
+}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-name{
+  font-size:clamp(0.8rem,2vw,0.88rem);
+  color:var(--white);font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-bottom:3px;
+}
+.cart-item-meta{
+  font-size:clamp(0.66rem,1.6vw,0.72rem);
+  color:var(--w40);letter-spacing:0.06em;margin-bottom:6px;
+}
+.cart-item-price{
+  font-family:var(--font-d);
+  font-size:clamp(0.9rem,2.5vw,1rem);
+  color:var(--gold);margin-bottom:8px;
+}
+.cart-qty{
+  display:inline-flex;align-items:center;
+  border:1px solid var(--w10);border-radius:var(--radius-pill);
+  background:var(--w06);overflow:hidden;
+}
+.cart-qty-btn{
+  width:28px;height:28px;
+  background:none;border:none;color:var(--w60);
+  cursor:pointer;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.2s;
+}
+.cart-qty-btn:hover{background:var(--w10);color:var(--white)}
+.cart-qty-val{width:28px;text-align:center;font-size:0.8rem;color:var(--white)}
+.cart-item-remove{
+  background:none;border:none;color:var(--w20);
+  cursor:pointer;font-size:0.75rem;padding:4px;
+  transition:color 0.2s;flex-shrink:0;margin-top:2px;
+}
+.cart-item-remove:hover{color:#f87171}
+
+.cart-empty{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:14px;
+  padding:60px 20px;text-align:center;color:var(--w40);
+}
+.cart-empty svg{width:44px;height:44px;opacity:0.4}
 
 /* ═══════════════════════════════════════
    3D SCENE CANVAS
@@ -295,8 +399,9 @@ nav.scrolled{
   box-shadow:0 28px 72px rgba(0,0,0,0.6);
   transform:translateY(-12px);opacity:0;
   transition:all 0.38s var(--ease);
+  pointer-events:none;
 }
-#mobileNav.open{transform:translateY(0);opacity:1}
+#mobileNav.open{transform:translateY(0);opacity:1;pointer-events:auto}
 #mobileNav a{
   display:block;font-size:clamp(1rem,4vw,1.1rem);
   color:var(--w80);
@@ -708,6 +813,7 @@ section{position:relative;z-index:10}
   border-radius:inherit;overflow:hidden;
   border:1px solid var(--g-border);
   box-shadow:var(--g-shadow-h);
+  position:relative;
 }
 .about-img-inner img{width:100%;height:100%;object-fit:cover}
 .about-img-inner::before{
@@ -1024,45 +1130,19 @@ textarea.input-liq{resize:none}
 .reveal.visible{opacity:1;transform:translateY(0)}
 
 /* ═══════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════ */
-@media(max-width:900px){
-  .nav-links{display:none}
-  .nav-ham{display:flex}
-  .about-grid{grid-template-columns:1fr;gap:clamp(52px,10vw,72px)}
-  .about-img-wrap{aspect-ratio:4/3;max-width:500px;margin:0 auto}
-  .steps-row{grid-template-columns:repeat(2,1fr)}
-  .steps-row::before{display:none}
-  .footer-grid{grid-template-columns:1fr 1fr}
-  .h3c:nth-child(1),.h3c:nth-child(4){display:none}
-}
-@media(max-width:640px){
-  .pdm-grid{grid-template-columns:1fr}
-  .pdm-img{border-radius:var(--radius-modal) var(--radius-modal) 0 0;aspect-ratio:4/3}
-  .pdm-body{border-radius:0 0 var(--radius-modal) var(--radius-modal)}
-  .products-grid{grid-template-columns:repeat(auto-fill,minmax(clamp(190px,44vw,290px),1fr))}
-  .footer-grid{grid-template-columns:1fr;gap:32px}
-  .h3c{display:none}
-}
-@media(max-width:400px){
-  .hero-chips{flex-direction:column;align-items:center}
-  .steps-row{grid-template-columns:1fr}
-  .about-stats{grid-template-columns:repeat(2,1fr)}
-  .about-stats .stat-card:last-child{grid-column:1/-1}
-}
-/* ═══════════════════════════════════════════════════
    SIZE CHART MODAL
-═══════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 #sizeModal{
-  position:fixed;inset:0;z-index:600;
+  position:fixed;inset:0;z-index:900;
   background:rgba(0,0,0,0.82);
   backdrop-filter:blur(16px);
   -webkit-backdrop-filter:blur(16px);
   display:none;align-items:center;
   justify-content:center;
   padding:clamp(12px,3vw,24px);
+  pointer-events:none;
 }
-#sizeModal.open{display:flex}
+#sizeModal.open{display:flex;pointer-events:auto}
 .size-box{
   width:100%;max-width:520px;
   border-radius:var(--radius-modal);
@@ -1073,6 +1153,7 @@ textarea.input-liq{resize:none}
   box-shadow:0 48px 120px rgba(0,0,0,0.7);
   animation:modal-in 0.4s var(--spring) both;
   overflow:hidden;
+  pointer-events:auto;
 }
 .size-head{
   padding:clamp(18px,4vw,28px) clamp(18px,4vw,28px) 0;
@@ -1128,6 +1209,34 @@ textarea.input-liq{resize:none}
   font-size:clamp(0.65rem,1.6vw,0.72rem);
   color:var(--w60);line-height:1.6;
 }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media(max-width:900px){
+  .nav-links{display:none}
+  .nav-ham{display:flex}
+  .about-grid{grid-template-columns:1fr;gap:clamp(52px,10vw,72px)}
+  .about-img-wrap{aspect-ratio:4/3;max-width:500px;margin:0 auto}
+  .steps-row{grid-template-columns:repeat(2,1fr)}
+  .steps-row::before{display:none}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .h3c:nth-child(1),.h3c:nth-child(4){display:none}
+}
+@media(max-width:640px){
+  .pdm-grid{grid-template-columns:1fr}
+  .pdm-img{border-radius:var(--radius-modal) var(--radius-modal) 0 0;aspect-ratio:4/3}
+  .pdm-body{border-radius:0 0 var(--radius-modal) var(--radius-modal)}
+  .products-grid{grid-template-columns:repeat(auto-fill,minmax(clamp(190px,44vw,290px),1fr))}
+  .footer-grid{grid-template-columns:1fr;gap:32px}
+  .h3c{display:none}
+}
+@media(max-width:400px){
+  .hero-chips{flex-direction:column;align-items:center}
+  .steps-row{grid-template-columns:1fr}
+  .about-stats{grid-template-columns:repeat(2,1fr)}
+  .about-stats .stat-card:last-child{grid-column:1/-1}
+}
 </style>
 </head>
 <body>
@@ -1174,6 +1283,12 @@ textarea.input-liq{resize:none}
     <li><a onclick="scrollToId('about')">About</a></li>
     <li><a onclick="scrollToId('how')">Process</a></li>
     <li><a class="nav-cta" onclick="scrollToId('products')">Shop Now</a></li>
+    <li style="position:relative">
+      <button class="cart-btn" onclick="openCart()" aria-label="Cart">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+    </li>
   </ul>
   <button class="nav-ham" id="navHam" onclick="toggleMob()" aria-label="Menu">
     <div class="ham-line"></div>
@@ -1188,11 +1303,14 @@ textarea.input-liq{resize:none}
   <a onclick="scrollToId('about');closeMob()">About</a>
   <a onclick="scrollToId('how');closeMob()">Process</a>
   <a onclick="scrollToId('products');closeMob()" style="color:var(--gold);font-weight:500">Shop Now →</a>
+  <a onclick="closeMob();openCart()" style="display:flex;align-items:center;gap:10px">
+    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+    Cart <span id="mobileCartBadge" style="background:var(--gold);color:#1a1200;font-size:0.65rem;font-weight:700;padding:1px 7px;border-radius:100px;display:none">0</span>
+  </a>
 </div>
 
 <!-- Hero -->
 <section id="hero">
-  <!-- 3D floating ambient cards -->
   <div class="hero-3d-cards">
     <div class="h3c">
       <span class="h3c-val">500+</span>
@@ -1271,7 +1389,7 @@ textarea.input-liq{resize:none}
     <div class="about-grid">
       <div class="reveal">
         <div class="about-img-wrap">
-          <div class="about-img-inner"><img src="./images/image.png" alt=""></div>
+          <div class="about-img-inner"><img src="./images/image.png" alt="About LIMA CLOZET" onerror="this.style.display='none'"></div>
           <div class="about-float">
             <div class="float-yr">Since 2020</div>
             <div class="float-lb">Curating Luxury</div>
@@ -1416,7 +1534,7 @@ textarea.input-liq{resize:none}
     <div class="order-modal-body">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(18px,4vw,30px)">
         <h3 style="font-family:var(--font-d);font-size:clamp(1.2rem,4vw,1.6rem);font-weight:300;color:var(--white)">Complete Order</h3>
-        <button onclick="closeOM()" style="width:36px;height:36px;border-radius:50%;background:var(--w06);border:1px solid var(--w10);color:var(--w60);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s" onmouseenter="this.style.background='var(--w10)'" onmouseleave="this.style.background='var(--w06)'" aria-label="Close">
+        <button onclick="closeOM()" style="width:36px;height:36px;border-radius:50%;background:var(--w06);border:1px solid var(--w10);color:var(--w60);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s" aria-label="Close">
           <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -1510,7 +1628,6 @@ textarea.input-liq{resize:none}
             <button onclick="event.stopPropagation();clearUpload()" style="font-size:0.72rem;color:var(--w40);background:none;border:none;cursor:pointer;margin-top:8px;font-family:var(--font-ui)">✕ Remove</button>
           </div>
         </div>
-        <!-- Delivery Info -->
         <div style="margin-bottom:18px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1)">
           <div style="font-size:0.68rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);margin-bottom:10px">Shipping Method</div>
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px">
@@ -1525,7 +1642,6 @@ textarea.input-liq{resize:none}
           <label class="input-label" for="fRef">Transaction Reference (optional)</label>
           <input class="input-liq" id="fRef" type="text" placeholder="e.g. 123456789">
         </div>
-        <!-- Terms -->
         <div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(212,175,106,0.05);border:1px solid rgba(212,175,106,0.15)">
           <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
             <input type="checkbox" id="termsCheck" style="margin-top:3px;accent-color:var(--gold);width:15px;height:15px;flex-shrink:0">
@@ -1556,8 +1672,34 @@ textarea.input-liq{resize:none}
   </div>
 </div>
 
+<!-- Cart Overlay -->
+<div id="cartOverlay" onclick="closeCart()"></div>
+
+<!-- Cart Drawer -->
+<div id="cartDrawer">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:clamp(18px,4vw,26px) clamp(18px,4vw,26px) 0;flex-shrink:0">
+    <div>
+      <div style="font-family:var(--font-d);font-size:clamp(1.2rem,4vw,1.5rem);font-weight:300;color:var(--white)">Your Cart</div>
+      <div id="cartCount" style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-top:3px">0 items</div>
+    </div>
+    <button onclick="closeCart()" style="width:36px;height:36px;border-radius:50%;background:var(--w06);border:1px solid var(--w10);color:var(--w60);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0" aria-label="Close cart">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div style="height:1px;background:var(--w06);margin:clamp(14px,3vw,20px) 0;flex-shrink:0"></div>
+  <div id="cartItems" style="flex:1;overflow-y:auto;padding:0 clamp(18px,4vw,26px)"></div>
+  <div id="cartFooter" style="display:none;padding:clamp(16px,3vw,22px) clamp(18px,4vw,26px) clamp(22px,5vw,34px);border-top:1px solid var(--w06);flex-shrink:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <span style="font-size:0.8rem;color:var(--w60);letter-spacing:0.1em">Total</span>
+      <span id="cartTotal" style="font-family:var(--font-d);font-size:clamp(1.2rem,4vw,1.5rem);font-weight:300;color:var(--gold)">₦0</span>
+    </div>
+    <button class="btn btn-gold btn-full" onclick="checkoutCart()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px">Checkout<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    <button class="btn btn-ghost btn-full" style="margin-top:8px;width:100%" onclick="closeCart()">Continue Shopping</button>
+  </div>
+</div>
+
 <!-- Size Chart Modal -->
-<div id="sizeModal" class="modal-backdrop" onclick="if(event.target===this)closeSizeModal()">
+<div id="sizeModal" onclick="if(event.target===this)closeSizeModal()">
   <div class="modal-box" style="max-width:480px">
     <div style="padding:clamp(20px,4vw,32px)">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
@@ -1592,6 +1734,129 @@ let proofName = '';
 let curSelectedSize = '';
 let activeFilter = 'All';
 let mobOpen = false;
+let cart = []; // [{ product, qty, size }]
+
+function addToCart(id) {
+  const p = products.find(x => String(x.id) === String(id));
+  if (!p) return;
+  if (p.hasSizes && p.sizes?.length) {
+    openSizePicker(p, (chosenSize) => {
+      addToCartWithSize(id, chosenSize);
+    });
+    return;
+  }
+  const existing = cart.find(x => x.product.id === p.id && !x.size);
+  if (existing) { existing.qty++; }
+  else { cart.push({ product: p, qty: 1, size: '' }); }
+  updateCartUI();
+  toast(`${p.name} added to cart 🛍️`, 'success');
+  openCart();
+}
+
+function addToCartWithSize(productId, size) {
+  const p = products.find(x => String(x.id) === String(productId));
+  if (!p) return;
+  const existing = cart.find(x => x.product.id === p.id && x.size === size);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ product: p, qty: 1, size });
+  }
+  updateCartUI();
+  toast(`${p.name} (${size}) added to cart 🛍️`, 'success');
+  openCart();
+}
+
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  updateCartUI();
+}
+
+function changeCartQty(index, delta) {
+  cart[index].qty = Math.max(1, cart[index].qty + delta);
+  updateCartUI();
+}
+
+function updateCartUI() {
+  const total = cart.reduce((s, x) => s + x.product.price * x.qty, 0);
+  const count = cart.reduce((s, x) => s + x.qty, 0);
+  const badge = document.getElementById('cartBadge');
+  const mobileBadge = document.getElementById('mobileCartBadge');
+  const countEl = document.getElementById('cartCount');
+  const totalEl = document.getElementById('cartTotal');
+  const footer = document.getElementById('cartFooter');
+
+  badge.textContent = count;
+  badge.classList.toggle('show', count > 0);
+  mobileBadge.textContent = count;
+  mobileBadge.classList.toggle('show', count > 0);
+  if (countEl) countEl.textContent = `${count} item${count !== 1 ? 's' : ''}`;
+  if (totalEl) totalEl.textContent = '₦' + fmt(total);
+  if (footer) footer.style.display = cart.length ? 'block' : 'none';
+  renderCartItems();
+}
+
+function renderCartItems() {
+  const el = document.getElementById('cartItems');
+  if (!el) return;
+  if (cart.length === 0) {
+    el.innerHTML = `
+      <div class="cart-empty">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+        <p style="font-size:0.85rem">Your cart is empty</p>
+        <button class="btn btn-ghost" style="font-size:0.75rem;padding:8px 20px" onclick="closeCart()">Browse Products</button>
+      </div>`;
+    return;
+  }
+  el.innerHTML = cart.map((item, i) => `
+    <div class="cart-item">
+      <img class="cart-item-img" src="${item.product.image}" alt="${item.product.name}" onerror="this.style.background='#1a1820'">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.product.name}</div>
+        <div class="cart-item-meta">${item.product.category}${item.size ? ' · Size ' + item.size : ''}</div>
+        <div class="cart-item-price">₦${fmt(item.product.price * item.qty)}</div>
+        <div class="cart-qty">
+          <button class="cart-qty-btn" onclick="changeCartQty(${i},-1)">−</button>
+          <span class="cart-qty-val">${item.qty}</span>
+          <button class="cart-qty-btn" onclick="changeCartQty(${i},1)">+</button>
+        </div>
+      </div>
+      <button class="cart-item-remove" onclick="removeFromCart(${i})" title="Remove">✕</button>
+    </div>
+  `).join('');
+}
+
+function openCart() {
+  document.getElementById('cartDrawer').classList.add('open');
+  document.getElementById('cartOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCart() {
+  document.getElementById('cartDrawer').classList.remove('open');
+  document.getElementById('cartOverlay').classList.remove('show');
+  setTimeout(() => {
+    if (!document.getElementById('cartDrawer').classList.contains('open') &&
+        !document.getElementById('orderModal').classList.contains('open') &&
+        !document.getElementById('pdModal').classList.contains('open') &&
+        !document.getElementById('sizeModal').classList.contains('open')) {
+      document.body.style.overflow = '';
+    }
+  }, 420);
+}
+
+/* ══════════════════════════════════════
+   KEYBOARD
+══════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closePD();
+    closeOM();
+    closeMob();
+    closeCart();
+    closeSizeModal();
+  }
+});
 
 const BACKEND_URL = 'https://lima-clozet-production.up.railway.app';
 const API = {
@@ -1600,6 +1865,7 @@ const API = {
   orders: `${BACKEND_URL}/orders`,
 };
 const BANK = { bank:'Gtbank Nigeria', number:'0553942207', name:'Bankole Halimat' };
+
 /* ══════════════════════════════════════
    3D CANVAS — FLOATING PARTICLES
 ══════════════════════════════════════ */
@@ -1654,7 +1920,6 @@ const BANK = { bank:'Gtbank Nigeria', number:'0553942207', name:'Bankole Halimat
 
   for (let i = 0; i < 120; i++) particles.push(new Particle());
 
-  /* Connection lines */
   function drawConnections() {
     for (let i = 0; i < particles.length; i++) {
       for (let j = i+1; j < particles.length; j++) {
@@ -1687,6 +1952,9 @@ const BANK = { bank:'Gtbank Nigeria', number:'0553942207', name:'Bankole Halimat
 /* ══════════════════════════════════════
    CUSTOM CURSOR
 ══════════════════════════════════════ */
+function cursorOn() { document.body.classList.add('cursor-hover'); }
+function cursorOff() { document.body.classList.remove('cursor-hover'); }
+
 (function initCursor() {
   const dot = document.getElementById('cursor');
   const ring = document.getElementById('cursor-ring');
@@ -1704,11 +1972,6 @@ const BANK = { bank:'Gtbank Nigeria', number:'0553942207', name:'Bankole Halimat
     requestAnimationFrame(animateCursor);
   }
   animateCursor();
-
-  document.querySelectorAll('button,a,[onclick],.product-card,.filter-btn,.chip').forEach(el => {
-    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-  });
 })();
 
 /* ══════════════════════════════════════
@@ -1720,7 +1983,6 @@ document.addEventListener('mousemove', e => {
   const rx = ((e.clientY / window.innerHeight) - 0.5) * 6;
   const ry = ((e.clientX / window.innerWidth) - 0.5) * -6;
   hero.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-  hero.style.transition = 'transform 0.1s ease';
 });
 
 /* ══════════════════════════════════════
@@ -1773,9 +2035,9 @@ async function loadProducts() {
       sizes: p.sizes || [],
     }));
     if (products.length === 0) throw new Error('empty');
-  } catch {
-    /* Fallback to demo products */
-    products = DEMO_PRODUCTS;
+  } catch (error) {
+    console.warn('Unable to load products:', error);
+    products = [];
   }
   buildFilters();
   renderProducts();
@@ -1790,7 +2052,6 @@ function buildFilters() {
   document.getElementById('filtersRow').innerHTML = cats.map(c =>
     `<button class="filter-btn${c==='All'?' active':''}" onclick="setFilter('${c}')">${c}</button>`
   ).join('');
-  refreshCursorTargets();
 }
 
 function setFilter(cat) {
@@ -1823,7 +2084,7 @@ function renderProducts() {
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
           ${p.hasSizes && p.sizes?.length ? `
-          <button class="p-act-btn" onclick="openSizeChart(event,'${p.id}')" title="Size guide" aria-label="Size guide">
+          <button class="p-act-btn" onclick="event.stopPropagation();openSizeChart(event,'${p.id}')" title="Size guide" aria-label="Size guide">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"/></svg>
           </button>` : ''}
           <button class="p-act-btn" onclick="quickOrder('${p.id}')" title="Order now" aria-label="Order ${p.name}">
@@ -1836,9 +2097,14 @@ function renderProducts() {
         <p class="p-desc">${p.description}</p>
         <div class="p-row">
           <div class="p-price">₦${fmt(p.price)}</div>
-          <button class="p-order-btn" onclick="quickOrder('${p.id}')" aria-label="Order ${p.name}">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-          </button>
+          <div style="display:flex;gap:6px">
+            <button class="p-act-btn" onclick="addToCart('${p.id}')" title="Add to cart" aria-label="Add to cart" style="width:clamp(34px,5vw,40px);height:clamp(34px,5vw,40px);background:rgba(212,175,106,0.12);border-color:rgba(212,175,106,0.3);color:var(--gold)">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            </button>
+            <button class="p-order-btn" onclick="quickOrder('${p.id}')" aria-label="Order ${p.name}">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1938,7 +2204,11 @@ function openPD(id) {
 }
 function closePD() {
   document.getElementById('pdModal').classList.remove('open');
-  document.body.style.overflow = '';
+  if (!document.getElementById('cartDrawer').classList.contains('open') &&
+      !document.getElementById('orderModal').classList.contains('open') &&
+      !document.getElementById('sizeModal').classList.contains('open')) {
+    document.body.style.overflow = '';
+  }
 }
 function closePDBackdrop(e) { if (e.target === document.getElementById('pdModal')) closePD(); }
 function changeQty(d) {
@@ -1953,41 +2223,76 @@ function startOrderFromDetail() { closePD(); setTimeout(openOM, 320); }
 ══════════════════════════════════════ */
 function openSizeChart(e, id) {
   e.stopPropagation();
-  const p = products.find(x => x.id === id);
+  const p = products.find(x => String(x.id) === String(id));
   if (!p || !p.sizes?.length) return;
   curProduct = p;
-  // show size table in a toast-style popup
+  const head = document.getElementById('sizeModalHead');
+  const body = document.getElementById('sizeModalBody');
   const unit = p.sizeUnit || 'inches';
   const hasLength = p.sizes.some(s => s.length);
-  const rows = p.sizes.map(s => `
-    <tr onclick="selectSizeFromChart('${s.label}')" style="cursor:pointer" title="Click to select ${s.label}">
-      <td style="color:var(--gold);font-family:var(--font-d);font-size:1rem;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05)">${s.label}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.bust || '—'}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.waist || '—'}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.hip || '—'}</td>
-      ${hasLength ? `<td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.length || '—'}</td>` : ''}
-    </tr>`).join('');
-
-  document.getElementById('sizeModalTitle').textContent = p.name + ' — Size Guide';
-  document.getElementById('sizeModalUnit').textContent = `All measurements in ${unit}`;
-  document.getElementById('sizeModalHead').innerHTML = `
+  head.innerHTML = `
     <th style="text-align:left;padding:8px 12px;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(212,175,106,0.2)">Size</th>
     <th style="padding:8px 12px;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(212,175,106,0.2);text-align:center">Bust</th>
     <th style="padding:8px 12px;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(212,175,106,0.2);text-align:center">Waist</th>
     <th style="padding:8px 12px;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(212,175,106,0.2);text-align:center">Hip</th>
-    ${hasLength ? `<th style="padding:8px 12px;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(212,175,106,0.2);text-align:center">Length</th>` : ''}
-  `;
-  document.getElementById('sizeModalBody').innerHTML = rows;
+    ${hasLength ? '<th style="padding:8px 12px;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(212,175,106,0.2);text-align:center">Length</th>' : ''}`;
+  body.innerHTML = p.sizes.map(s => `
+    <tr>
+      <td style="color:var(--gold);font-family:var(--font-d);font-size:1rem;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05)">${s.label}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.bust||'—'}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.waist||'—'}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.hip||'—'}</td>
+      ${hasLength ? `<td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.length||'—'}</td>` : ''}
+    </tr>`).join('');
+  document.getElementById('sizeModalTitle').textContent = p.name + ' — Size Guide';
+  document.getElementById('sizeModalUnit').textContent = `All measurements in ${unit}`;
   document.getElementById('sizeModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
-function closeSizeModal() {
-  document.getElementById('sizeModal').classList.remove('open');
-  document.body.style.overflow = '';
+function openSizePicker(product, onConfirm) {
+  curProduct = product;
+  document.getElementById('sizeModalTitle').textContent = 'Select Your Size';
+  document.getElementById('sizeModalUnit').textContent = product.sizeUnit || 'inches';
+  const head = document.getElementById('sizeModalHead');
+  const body = document.getElementById('sizeModalBody');
+  const hasLength = product.sizes.some(s => s.length);
+  head.innerHTML = `
+    <th style="text-align:left;padding:8px 12px;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(212,175,106,0.2)">Size</th>
+    <th style="padding:8px 12px;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(212,175,106,0.2);text-align:center">Bust</th>
+    <th style="padding:8px 12px;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(212,175,106,0.2);text-align:center">Waist</th>
+    <th style="padding:8px 12px;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(212,175,106,0.2);text-align:center">Hip</th>
+    ${hasLength ? '<th style="padding:8px 12px;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(212,175,106,0.2);text-align:center">Length</th>' : ''}
+    <th></th>`;
+  body.innerHTML = product.sizes.map(s => `
+    <tr>
+      <td style="color:var(--gold);font-family:var(--font-d);font-size:1rem;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05)">${s.label}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.bust||'—'}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.waist||'—'}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.hip||'—'}</td>
+      ${hasLength ? `<td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);text-align:center">${s.length||'—'}</td>` : ''}
+      <td><button class="btn btn-gold" style="padding:6px 14px;font-size:0.72rem" onclick="sizePickerConfirm('${s.label}')">Select</button></td>
+    </tr>`).join('');
+  window._sizePickerCallback = onConfirm;
+  document.getElementById('sizeModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
-// Call this when opening the order modal to populate size dropdown
+function sizePickerConfirm(label) {
+  closeSizeModal();
+  if (window._sizePickerCallback) window._sizePickerCallback(label);
+  window._sizePickerCallback = null;
+}
+
+function closeSizeModal() {
+  document.getElementById('sizeModal').classList.remove('open');
+  if (!document.getElementById('cartDrawer').classList.contains('open') &&
+      !document.getElementById('orderModal').classList.contains('open') &&
+      !document.getElementById('pdModal').classList.contains('open')) {
+    document.body.style.overflow = '';
+  }
+}
+
 function populateSizeDropdown(p) {
   const wrap = document.getElementById('sizeSelectWrap');
   const sel  = document.getElementById('fSize');
@@ -2047,7 +2352,11 @@ function openOM() {
 }
 function closeOM() {
   document.getElementById('orderModal').classList.remove('open');
-  document.body.style.overflow = '';
+  if (!document.getElementById('cartDrawer').classList.contains('open') &&
+      !document.getElementById('pdModal').classList.contains('open') &&
+      !document.getElementById('sizeModal').classList.contains('open')) {
+    document.body.style.overflow = '';
+  }
 }
 function closeOMBackdrop(e) { if (e.target === document.getElementById('orderModal')) closeOM(); }
 
@@ -2087,8 +2396,11 @@ function goStep(n) {
     if (!phone || phone.length < 7) { toast('Please enter a valid phone number.','warning'); document.getElementById('fPhone').focus(); return; }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Please enter a valid email address.','warning'); document.getElementById('fEmail').focus(); return; }
     if (!addr) { toast('Please enter your delivery address.','warning'); document.getElementById('fAddr').focus(); return; }
+    const size = document.getElementById('fSize').value;
+    const needsSize = curProduct && curProduct.hasSizes && curProduct.sizes?.length;
+    if (needsSize && !size) { toast('Please select your size before continuing.','warning'); document.getElementById('fSize').focus(); return; }
     document.getElementById('bankNum').textContent = BANK.number;
-    document.getElementById('bankAmt').textContent = '₦' + fmt(curProduct.price * curQty);
+    document.getElementById('bankAmt').textContent = '₦' + fmt(curProduct.isCart ? curProduct.price : curProduct.price * curQty);
   }
   updateDots(n); showStep(n);
 }
@@ -2158,55 +2470,73 @@ function initDragDrop() {
 ══════════════════════════════════════ */
 async function submitOrder() {
   if (!proofData) { toast('Please upload your payment proof.','warning'); return; }
-  const size = document.getElementById('fSize').value;
-  const needsSize = curProduct.hasSizes && curProduct.sizes?.length;
-  if (needsSize && !size) { toast('Please select your size.', 'warning'); return; }
+
+  if (!curProduct.isCart) {
+    const size = document.getElementById('fSize').value;
+    const needsSize = curProduct && curProduct.hasSizes && curProduct.sizes?.length;
+    if (needsSize && !size) { toast('Please select your size.','warning'); return; }
+  }
+
   const terms = document.getElementById('termsCheck');
-  if (!terms.checked) { toast('Please agree to the terms and conditions.', 'warning'); return; }
+  if (!terms.checked) { toast('Please agree to the terms and conditions.','warning'); return; }
+
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:8px"><span class="spinner"></span>Submitting…</span>';
 
   try {
-    const order = {
-      id: genOrderNum(),
-      product: { id:curProduct.id, name:curProduct.name, price:curProduct.price, image:curProduct.image },
-      quantity: curQty,
-      total: curProduct.price * curQty,
-      selectedSize: document.getElementById('fSize').value || '',
-      customer: {
-        name: document.getElementById('fName').value.trim(),
-        phone: document.getElementById('fPhone').value.trim(),
-        email: document.getElementById('fEmail').value.trim(),
-        address: document.getElementById('fAddr').value.trim(),
-        notes: document.getElementById('fNotes').value.trim(),
-      },
-      payment: { bank:BANK.bank, account:BANK.number, proofFileName:proofName, proofData, ref:document.getElementById('fRef').value.trim() },
-      timestamp: new Date().toISOString(),
+    const orderId = genOrderNum();
+    const customer = {
+      name:    document.getElementById('fName').value.trim(),
+      phone:   document.getElementById('fPhone').value.trim(),
+      email:   document.getElementById('fEmail').value.trim(),
+      address: document.getElementById('fAddr').value.trim(),
+      notes:   document.getElementById('fNotes').value.trim(),
     };
 
-    try {
-      const res = await fetch(API.orders, {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({
-          product: order.product, quantity: order.quantity, total: order.total,
-          selectedSize: order.selectedSize,
-          customer: order.customer,
-          payment: { proofData: order.payment.proofData, ref: order.payment.ref },
-        }),
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message || 'Server error');
-    } catch { /* offline — still show success in demo */ }
+    let payload;
+    if (curProduct.isCart) {
+      payload = {
+        cartItems: cart.map(x => ({
+          name:  x.product.name,
+          price: x.product.price,
+          image: x.product.image,
+          size:  x.size || '',
+          qty:   x.qty,
+        })),
+        total:    cart.reduce((s, x) => s + x.product.price * x.qty, 0),
+        customer,
+        payment: { proofData, ref: document.getElementById('fRef').value.trim() },
+      };
+    } else {
+      payload = {
+        product:      { id: curProduct.id, name: curProduct.name, price: curProduct.price, image: curProduct.image },
+        quantity:     curQty,
+        total:        curProduct.price * curQty,
+        selectedSize: document.getElementById('fSize').value || '',
+        customer,
+        payment: { proofData, ref: document.getElementById('fRef').value.trim() },
+      };
+    }
+
+    const res  = await fetch(API.orders, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'Server error');
+
+    if (curProduct.isCart) { cart = []; updateCartUI(); }
 
     document.getElementById('oSummary').style.display = 'none';
     document.getElementById('stepsDots').style.display = 'none';
     showStep(99);
     document.getElementById('oSuccess').style.display = 'block';
-    document.getElementById('oNum').textContent = order.id;
+    document.getElementById('oNum').textContent = orderId;
     launchConfetti();
     toast('Order submitted successfully! 🎉','success');
+
   } catch (err) {
     console.error(err);
     toast('Submission failed. Please try again.','error');
@@ -2224,6 +2554,40 @@ function resetOrder() {
 }
 
 /* ══════════════════════════════════════
+   CHECKOUT CART
+══════════════════════════════════════ */
+function checkoutCart() {
+  if (cart.length === 0) return;
+  closeCart();
+  curProduct = {
+    id: 'cart',
+    name: cart.length === 1 ? cart[0].product.name : `${cart.length} items`,
+    price: cart.reduce((s, x) => s + x.product.price * x.qty, 0),
+    image: cart[0].product.image,
+    isCart: true,
+  };
+  curQty = 1;
+  openOMCart();
+}
+
+function openOMCart() {
+  resetSteps(); showStep(1);
+  document.getElementById('oSumImg').src = curProduct.image;
+  document.getElementById('oSumName').textContent = curProduct.name;
+  document.getElementById('oSumPrice').textContent = '₦' + fmt(curProduct.price) + ' total';
+  ['fName','fPhone','fEmail','fAddr','fNotes','fRef'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  clearUpload();
+  document.getElementById('sizeSelectWrap').style.display = 'none';
+  document.getElementById('oSuccess').style.display = 'none';
+  document.getElementById('oSummary').style.display = 'flex';
+  document.getElementById('stepsDots').style.display = 'flex';
+  document.getElementById('orderModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+/* ══════════════════════════════════════
    UTILITIES
 ══════════════════════════════════════ */
 function fmt(n) { return Number(n).toLocaleString('en-NG'); }
@@ -2231,15 +2595,13 @@ function genOrderNum() {
   return 'LC-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2,5).toUpperCase();
 }
 function refreshCursorTargets() {
-  document.querySelectorAll('button,a,[onclick],.product-card,.filter-btn,.chip,.step-card,.stat-card').forEach(el => {
+  document.querySelectorAll('button,a,[onclick],.product-card,.filter-btn,.chip,.step-card,.stat-card,.soc-btn,.p-act-btn,.p-order-btn,.cart-btn,.upload-zone,.bank-num').forEach(el => {
     el.removeEventListener('mouseenter', cursorOn);
     el.removeEventListener('mouseleave', cursorOff);
     el.addEventListener('mouseenter', cursorOn);
     el.addEventListener('mouseleave', cursorOff);
   });
 }
-function cursorOn() { document.body.classList.add('cursor-hover'); }
-function cursorOff() { document.body.classList.remove('cursor-hover'); }
 
 /* ══════════════════════════════════════
    TOAST
@@ -2248,7 +2610,7 @@ const ICONS = {
   success:`<svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>`,
   error:`<svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>`,
   warning:`<svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"/></svg>`,
-  info:`<svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+  info:`<svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-7.5-3h.008v.008h-.008V9zm10.5-3h.008v.008h-.008V6z"/></svg>`,
 };
 function toast(msg, type='info') {
   const t = document.createElement('div');
@@ -2291,12 +2653,7 @@ function launchConfetti() {
     document.head.appendChild(s);
   }
 }
-
-/* ══════════════════════════════════════
-   KEYBOARD
-══════════════════════════════════════ */
-document.addEventListener('keydown', e => {
-  if (e.key==='Escape') { closePD(); closeOM(); closeMob(); }
-});
 </script>
 </body>
+</html>
+
