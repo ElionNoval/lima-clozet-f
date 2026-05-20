@@ -1858,7 +1858,7 @@ document.addEventListener('keydown', e => {
   }
 });
 
-const BACKEND_URL = 'https://lima-clozet-production.up.railway.app';
+const BACKEND_URL = 'https://lima-clozet.onrender.com';
 const API = {
   products: `${BACKEND_URL}/products`,
   categories: `${BACKEND_URL}/categories`,
@@ -2037,7 +2037,15 @@ async function loadProducts() {
     if (products.length === 0) throw new Error('empty');
   } catch (error) {
     console.warn('Unable to load products:', error);
-    products = [];
+    document.getElementById('productsGrid').innerHTML = `
+      <div class="loading-state" style="grid-column:1/-1;flex-direction:column;gap:14px">
+        <svg width="40" height="40" fill="none" stroke="rgba(248,113,113,0.6)" viewBox="0 0 24 24" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+        </svg>
+        <span style="color:rgba(255,255,255,0.4);font-size:0.85rem">Could not load products</span>
+        <button class="btn btn-ghost" style="font-size:0.75rem;padding:8px 18px" onclick="loadProducts()">Try Again</button>
+      </div>`;
+    return;
   }
   buildFilters();
   renderProducts();
