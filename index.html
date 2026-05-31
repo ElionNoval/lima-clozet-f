@@ -2037,14 +2037,52 @@ async function loadProducts() {
     if (products.length === 0) throw new Error('empty');
   } catch (error) {
     console.warn('Unable to load products:', error);
-    document.getElementById('productsGrid').innerHTML = `
-      <div class="loading-state" style="grid-column:1/-1;flex-direction:column;gap:14px">
-        <svg width="40" height="40" fill="none" stroke="rgba(248,113,113,0.6)" viewBox="0 0 24 24" stroke-width="1.5">
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    function showRetryState(msg, isRetrying) {
+      document.getElementById('productsGrid').innerHTML = `
+      <div class="loading-state" style="grid-column:1/-1;flex-direction:column;gap:16px;text-align:center;padding:60px 20px">
+        ${isRetrying ? `<div class="spinner"></div>` : `
+        <svg width="40" height="40" fill="none" stroke="rgba(212,175,106,0.5)" viewBox="0 0 24 24" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
-        </svg>
-        <span style="color:rgba(255,255,255,0.4);font-size:0.85rem">Could not load products</span>
-        <button class="btn btn-ghost" style="font-size:0.75rem;padding:8px 18px" onclick="loadProducts()">Try Again</button>
+        </svg>`}
+        <span style="color:var(--w60);font-size:clamp(0.82rem,2vw,0.9rem)">${msg}</span>
+        ${!isRetrying ? `<button class="btn btn-ghost" style="font-size:0.75rem;padding:8px 20px;margin:0 auto" onclick="location.reload()">Refresh Page</button>` : ''}
       </div>`;
+    }
+
+    async function retry() {
+      attempts++;
+      if (attempts > maxAttempts) {
+        showRetryState('Unable to load products. Please refresh the page.', false);
+        return;
+      }
+      showRetryState(`Waking up the server… please wait (attempt ${attempts}/${maxAttempts})`, true);
+      await new Promise(r => setTimeout(r, 8000)); // wait 8 seconds between tries
+      try {
+        const res  = await fetch(API.products);
+        const data = await res.json();
+        if (!data.success || !Array.isArray(data.products)) throw new Error('bad');
+        products = data.products.map(p => ({
+          id: p._id, name: p.name, category: p.category || 'General',
+          price: p.price || 0, description: p.description || '',
+          image: p.image || '', stock: p.stock ?? null,
+          featured: p.featured ?? false, slug: p.slug || '',
+          hasSizes: p.hasSizes ?? false,
+          sizeUnit: p.sizeUnit || 'inches',
+          sizes: p.sizes || [],
+        }));
+        if (products.length === 0) throw new Error('empty');
+        buildFilters();
+        renderProducts();
+        refreshCursorTargets();
+      } catch {
+        retry();
+      }
+    }
+
+    retry();
     return;
   }
   buildFilters();
