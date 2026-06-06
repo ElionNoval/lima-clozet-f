@@ -1512,7 +1512,7 @@ textarea.input-liq{resize:none}
           <div class="qty-ctrl">
             <button class="qty-btn" onclick="changeQty(-1)" aria-label="Decrease">−</button>
             <span class="qty-val" id="pdQty">1</span>
-            <button class="qty-btn" onclick="changeQty(1)" aria-label="Increase">+</button>
+            <button class="qty-btn" onclick="changeQty(1)" aria-label="Increase"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2.25l1.5 7.5h11.5l1.75-5.25H5.25"/><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 16.5h9.75l1.5 4.5H6"/><circle cx="9" cy="21" r="1.5"/><circle cx="17.25" cy="21" r="1.5"/></svg></button>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding-top:20px;border-top:1px solid var(--w06)">
             <span style="font-size:0.8rem;color:var(--w60)">Total</span>
@@ -1557,7 +1557,10 @@ textarea.input-liq{resize:none}
 
       <!-- Step 1 -->
       <div id="oStep1">
-        <div style="font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--w60);margin-bottom:clamp(14px,3vw,22px)">Delivery Information</div>
+        <div style="font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--w60);margin-bottom:clamp(14px,3vw,22px)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="width:16px;height:16px;display:inline;margin-right:6px;vertical-align:middle"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+          Delivery Information
+        </div>
         <div style="display:flex;flex-direction:column;gap:clamp(10px,2.5vw,14px)">
           <div>
             <label class="input-label" for="fName">Full Name *</label>
@@ -1572,8 +1575,31 @@ textarea.input-liq{resize:none}
             <input class="input-liq" id="fEmail" type="email" placeholder="your@email.com" autocomplete="email">
           </div>
           <div>
-            <label class="input-label" for="fAddr">Delivery Address *</label>
-            <textarea class="input-liq" id="fAddr" rows="2" placeholder="Full address including city and state" autocomplete="street-address"></textarea>
+            <label class="input-label" for="fState">State *</label>
+            <select class="input-liq" id="fState" onchange="populateCities()">
+              <option value="">-- Select State --</option>
+              <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option>
+              <option>Anambra</option><option>Bauchi</option><option>Bayelsa</option>
+              <option>Benue</option><option>Borno</option><option>Cross River</option>
+              <option>Delta</option><option>Ebonyi</option><option>Edo</option>
+              <option>Ekiti</option><option>Enugu</option><option>FCT - Abuja</option>
+              <option>Gombe</option><option>Imo</option><option>Jigawa</option>
+              <option>Kaduna</option><option>Kano</option><option>Katsina</option>
+              <option>Kebbi</option><option>Kogi</option><option>Kwara</option>
+              <option>Lagos</option><option>Nasarawa</option><option>Niger</option>
+              <option>Ogun</option><option>Ondo</option><option>Osun</option>
+              <option>Oyo</option><option>Plateau</option><option>Rivers</option>
+              <option>Sokoto</option><option>Taraba</option><option>Yobe</option>
+              <option>Zamfara</option>
+            </select>
+          </div>
+          <div>
+            <label class="input-label" for="fCity">City / LGA *</label>
+            <input class="input-liq" id="fCity" type="text" placeholder="e.g. Ikeja, Surulere, Lekki">
+          </div>
+          <div>
+            <label class="input-label" for="fArea">Street / Local Area *</label>
+            <input class="input-liq" id="fArea" type="text" placeholder="e.g. 12 Bode Thomas Street, off Lawanson">
           </div>
           <div>
             <label class="input-label" for="fNotes">Notes (optional)</label>
@@ -1818,7 +1844,7 @@ function renderCartItems() {
         <div class="cart-qty">
           <button class="cart-qty-btn" onclick="changeCartQty(${i},-1)">−</button>
           <span class="cart-qty-val">${item.qty}</span>
-          <button class="cart-qty-btn" onclick="changeCartQty(${i},1)">+</button>
+          <button class="cart-qty-btn" onclick="changeCartQty(${i},1)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2.25l1.5 7.5h11.5l1.75-5.25H5.25"/><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 16.5h9.75l1.5 4.5H6"/><circle cx="9" cy="21" r="1.5"/><circle cx="17.25" cy="21" r="1.5"/></svg></button>
         </div>
       </div>
       <button class="cart-item-remove" onclick="removeFromCart(${i})" title="Remove">✕</button>
@@ -2375,13 +2401,19 @@ function quickOrder(id) {
   curProduct = p; curQty = 1; curSelectedSize = '';
   openOM();
 }
+function populateCities() {
+  // Clear city field when state changes
+  const cityField = document.getElementById('fCity');
+  if (cityField) cityField.value = '';
+  // Future enhancement: populate cities based on selected state
+}
 function openOM() {
   if (!curProduct) return;
   resetSteps(); showStep(1);
   document.getElementById('oSumImg').src = curProduct.image;
   document.getElementById('oSumName').textContent = curProduct.name;
   document.getElementById('oSumPrice').textContent = '₦' + fmt(curProduct.price) + ' × ' + curQty;
-  ['fName','fPhone','fEmail','fAddr','fNotes','fRef'].forEach(id => {
+  ['fName','fPhone','fEmail','fState','fCity','fArea','fNotes','fRef'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   clearUpload();
@@ -2437,11 +2469,15 @@ function goStep(n) {
     const name = document.getElementById('fName').value.trim();
     const phone = document.getElementById('fPhone').value.trim();
     const email = document.getElementById('fEmail').value.trim();
-    const addr = document.getElementById('fAddr').value.trim();
+    const state = document.getElementById('fState').value;
+    const city  = document.getElementById('fCity').value.trim();
+    const area  = document.getElementById('fArea').value.trim();
     if (!name) { toast('Please enter your full name.','warning'); document.getElementById('fName').focus(); return; }
     if (!phone || phone.length < 7) { toast('Please enter a valid phone number.','warning'); document.getElementById('fPhone').focus(); return; }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Please enter a valid email address.','warning'); document.getElementById('fEmail').focus(); return; }
-    if (!addr) { toast('Please enter your delivery address.','warning'); document.getElementById('fAddr').focus(); return; }
+    if (!state) { toast('Please select your state.','warning'); document.getElementById('fState').focus(); return; }
+    if (!city)  { toast('Please enter your city or LGA.','warning'); document.getElementById('fCity').focus(); return; }
+    if (!area)  { toast('Please enter your street or local area.','warning'); document.getElementById('fArea').focus(); return; }
     const size = document.getElementById('fSize').value;
     const needsSize = curProduct && curProduct.hasSizes && curProduct.sizes?.length;
     if (needsSize && !size) { toast('Please select your size before continuing.','warning'); document.getElementById('fSize').focus(); return; }
@@ -2536,7 +2572,7 @@ async function submitOrder() {
       name:    document.getElementById('fName').value.trim(),
       phone:   document.getElementById('fPhone').value.trim(),
       email:   document.getElementById('fEmail').value.trim(),
-      address: document.getElementById('fAddr').value.trim(),
+      address: `${document.getElementById('fArea').value.trim()}, ${document.getElementById('fCity').value.trim()}, ${document.getElementById('fState').value}`,
       notes:   document.getElementById('fNotes').value.trim(),
     };
 
@@ -2621,7 +2657,7 @@ function openOMCart() {
   document.getElementById('oSumImg').src = curProduct.image;
   document.getElementById('oSumName').textContent = curProduct.name;
   document.getElementById('oSumPrice').textContent = '₦' + fmt(curProduct.price) + ' total';
-  ['fName','fPhone','fEmail','fAddr','fNotes','fRef'].forEach(id => {
+  ['fName','fPhone','fEmail','fState','fCity','fArea','fNotes','fRef'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   clearUpload();
