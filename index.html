@@ -2231,6 +2231,16 @@ window.addEventListener('load', () => {
 /* ══════════════════════════════════════
    LOAD PRODUCTS
 ══════════════════════════════════════ */
+// Expand combined labels such as "L, XL" into individually selectable sizes.
+function normalizeProductSizes(rawSizes) {
+  if (!Array.isArray(rawSizes)) return [];
+  return rawSizes.flatMap(size => {
+    if (!size || typeof size !== 'object') return [];
+    const labels = String(size.label ?? size.size ?? '').split(',').map(v => v.trim()).filter(Boolean);
+    return labels.map(label => ({ ...size, label }));
+  });
+}
+
 async function loadProducts() {
   const grid = document.getElementById('productsGrid');
   const renderError = message => {
@@ -2261,14 +2271,18 @@ async function loadProducts() {
       if (!res.ok) throw new Error(`Server responded ${res.status}`);
       const data = await res.json();
       if (!data.success || !Array.isArray(data.products)) throw new Error(data.message || 'Invalid product response');
-      products = data.products.map(p => ({
-        id: p._id, name: p.name, category: p.category || 'General',
-        price: p.price || 0, description: p.description || '',
-        image: p.image || '', stock: p.stock ?? null,
-        featured: p.featured ?? false, slug: p.slug || '',
-        hasSizes: p.hasSizes ?? false, sizeUnit: p.sizeUnit || 'inches',
-        sizes: p.sizes || []
-      }));
+      products = data.products.map(p => {
+        const normalizedSizes = normalizeProductSizes(p.sizes || []);
+        return {
+          id: p._id, name: p.name, category: p.category || 'General',
+          price: p.price || 0, description: p.description || '',
+          image: p.image || '', stock: p.stock ?? null,
+          featured: p.featured ?? false, slug: p.slug || '',
+          hasSizes: Boolean(p.hasSizes || normalizedSizes.length),
+          sizeUnit: p.sizeUnit || 'inches',
+          sizes: normalizedSizes
+        };
+      });
       if (!products.length) throw new Error('The collection is currently empty.');
       clearTimeout(timeout);
       buildFilters();
